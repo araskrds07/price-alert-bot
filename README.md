@@ -1,5 +1,7 @@
 # Telegram Price Alert Bot
 
+**Turkish & English · region-aware (Türkiye / USA / Europe / Global)**
+
 A Telegram bot for price alerts on **crypto, US stocks, Borsa Istanbul, gold and FX**.
 Everything works with buttons, so there are no commands to memorise. It also
 sends a **daily market summary** to private chats and groups.
@@ -27,6 +29,21 @@ Bottom buttons: **🔔 Alarm kur · 💱 Fiyat · 📋 Alarmlarım · 📊 Özet
 - **Daily summary:** BIST 100, USD/TL, EUR/TL, gram gold, BTC and ETH, plus today's biggest BIST risers and fallers. Sent every day at a chosen time.
 - **Groups:** add the bot to a group. It answers commands and buttons, and ignores normal chat. Only group admins can switch the daily summary on or off.
 
+## Language and region
+
+On first contact the bot asks two questions with buttons: **language** (Türkçe / English) and **region**.
+The region sets the quick-pick buttons, the local-currency line, the time zone, the daily summary and what "gold" means:
+
+| Region | Quick picks | Local currency | Summary | "gold" / "altın" |
+|---|---|---|---|---|
+| 🇹🇷 Türkiye | BTC, gram gold, USD/TRY, BIST 100, THYAO… | ≈ ₺ | BIST 100, USD/TRY, gram gold + BIST movers | gram gold in ₺ |
+| 🇺🇸 USA | BTC, S&P 500, Nasdaq, gold, AAPL, NVDA… | — | S&P 500, Nasdaq, Dow + US movers | gold per ounce in $ |
+| 🇪🇺 Europe | BTC, EUR/USD, gold, DAX, Euro Stoxx… | ≈ € | Euro Stoxx 50, DAX, EUR/USD | gold per ounce in $ |
+| 🌍 Other | BTC, S&P 500, EUR/USD, gold, AAPL… | — | S&P 500, EUR/USD, gold | gold per ounce in $ |
+
+Users change both any time with **⚙️ Settings** (`/settings`, `/ayarlar`). In groups only admins can.
+The command menu shows Turkish commands on Turkish phones and English ones everywhere else.
+
 ## For the owner
 
 Set `OWNER_CHAT_ID`. You can get this number by sending `/id` to the bot. Then:
@@ -46,6 +63,9 @@ Set `OWNER_CHAT_ID`. You can get this number by sending `/id` to the bot. Then:
 | Variable | Example | What it does |
 |---|---|---|
 | `OWNER_CHAT_ID` | `123456789` | Admin panel and notifications |
+| `DEFAULT_LANG` | `tr` or `en` | Language for groups and before a user chooses |
+| `DEFAULT_REGION` | `tr`, `us`, `eu`, `global` | Region for groups and before a user chooses |
+| `ONBOARDING` | `0` | Skip the language/region questions and use the defaults |
 | `BOT_TITLE` | `Kripto Kulübü Botu` | Name shown in the help message |
 | `POPULAR` | `BTC,ETH,GRAMALTIN,USDTRY,ASELS.IS` | Quick-pick buttons |
 | `SUMMARY_ASSETS` | `BIST100,USDTRY,GRAMALTIN,BTC` | What the daily summary shows |

@@ -1,0 +1,71 @@
+name: Price Alert Bot
+
+on:
+  schedule:
+    - cron: "*/30 * * * *"     # safety net: restarts the chain if it ever breaks
+  workflow_dispatch:
+
+concurrency:
+  group: price-alert
+  cancel-in-progress: false
+
+permissions:
+  actions: write               # needed so each run can start the next one
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 13
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - run: pip install -r requirements.txt
+
+      # Alerts/users are kept in a private cache, NOT committed to the (public) repo.
+      - name: Restore data
+        uses: actions/cache/restore@v4
+        with:
+          path: alerts.json
+          key: alerts-${{ github.run_id }}
+          restore-keys: alerts-
+
+      - name: Run bot
+        env:
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          OWNER_CHAT_ID: ${{ vars.OWNER_CHAT_ID }}
+          ALLOWED_CHAT_IDS: ${{ vars.ALLOWED_CHAT_IDS }}
+          BOT_TITLE: ${{ vars.BOT_TITLE }}
+          DEFAULT_LANG: ${{ vars.DEFAULT_LANG }}
+          DEFAULT_REGION: ${{ vars.DEFAULT_REGION }}
+          ONBOARDING: ${{ vars.ONBOARDING }}
+          POPULAR: ${{ vars.POPULAR }}
+          SUMMARY_ASSETS: ${{ vars.SUMMARY_ASSETS }}
+          SUMMARY_TIME: ${{ vars.SUMMARY_TIME }}
+          LOCAL_TZ: ${{ vars.LOCAL_TZ }}
+          TRIAL_DAYS: ${{ vars.TRIAL_DAYS }}
+          TRIAL_UNTIL: ${{ vars.TRIAL_UNTIL }}
+          TRIAL_CONTACT: ${{ vars.TRIAL_CONTACT }}
+          RUN_MODE: loop
+          MAX_RUNTIME: "540"
+        run: python price_alert_bot.py
+
+      - name: Save data
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: alerts.json
+          key: alerts-${{ github.run_id }}
+
+      # Start the next run so the bot stays online around the clock.
+      # Skipped when the run was cancelled, so you can always stop the bot by
+      # cancelling a run (or by disabling the workflow).
+      - name: Start the next run
+        if: success()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh workflow run price-alert.yml --ref ${{ github.ref_name }}
